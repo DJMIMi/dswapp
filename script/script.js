@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        dswRep
 // @namespace   dsw_rep
-// @require  	  https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
+// @require		https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js
 // @include     http://www.erepublik.com/*
 // @include     https://www.erepublik.com/*
 // @version     1
@@ -126,11 +126,10 @@ function calcInflu(hit){
 
 function report(hitFF,hitBars,hitRockets){
 	var name = $(".user_name").text();
-    var data = {name: name, foodfight: hitFF, bars: hitBars, rockets: hitRockets, status:1};
 	GM_xmlhttpRequest({
 		method: "POST",
-		url: "http://localhost:8001/buggy/index.php",
-        data: "data="+JSON.stringify(data),
+		url: "http://198.211.119.68:3000/soldiers",
+        data: "name="+name+"&foodfight="+hitFF+"&bars="+hitBars+"&rockets="+hitRockets+"&status=true",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         },        
