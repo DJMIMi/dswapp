@@ -4,32 +4,71 @@
  */
 
 var express = require('express')
-  , routes = require('./routes')
-  , user = require('./routes/user')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , mongoose = require('mongoose');
+
+var Soldier = require('./models/soldier');
 
 var app = express();
 
+mongoose.connect("mongodb://localhost/dsw");
+
 // all environments
 app.set('port', process.env.PORT || 3000);
-app.set('views', __dirname + '/views');
-app.set('view engine', 'jade');
-app.use(express.favicon());
-app.use(express.logger('dev'));
 app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
-app.use(express.static(path.join(__dirname, 'public')));
 
-// development only
-if ('development' == app.get('env')) {
-  app.use(express.errorHandler());
-}
+// Routes
 
-app.get('/', routes.index);
-app.get('/users', user.list);
+app.get('/', function(req, res) {
+    res.send({'version': '0.0.1'});
+});
+
+app.get('/soldiers', function(req, res) {
+    Soldier.find(function(err, result) {
+        res.send(result);
+    });
+});
+
+app.get('/soldiers/:name', function(req, res) {
+    Soldier.findOne({'name': req.params.name}, function(err, result) {
+        if (err) {
+            res.status(500);
+            res.send(err);
+        } else {
+            res.send({result: result});
+        }
+    });
+});
+
+app.post('/soldiers', function(req, res) {
+    console.log(req.body);
+    Soldier.findOne({'name': req.body.name}, function(err, result) {
+        if (err) {
+            console.log('err');
+        } else if (result) {
+            result.name = req.body.name;
+            result.foodfight = req.body.foodfight;
+            result.bars = req.body.bars;
+            result.rockets = req.body.rockets;
+            result.status = req.body.status;
+            result.save();
+            res.send(result);
+        }
+    });
+    new Soldier({
+        name: req.body.name,
+        foodfight: req.body.foodfight,
+        bars: req.body.bars,
+        rockets: req.body.rockets,
+        status: req.body.status
+        }).save();
+    console.log(req.body.name);
+    res.send({'new soldier': req.body.name});
+});
 
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });
+
+module.exports = app;
